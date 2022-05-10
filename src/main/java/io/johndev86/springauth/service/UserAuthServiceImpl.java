@@ -9,15 +9,12 @@ import io.johndev86.springauth.respository.RoleRepository;
 import io.johndev86.springauth.respository.UserRepository;
 import io.johndev86.springauth.security.UserDetailsImpl;
 import io.johndev86.springauth.security.jwt.JwtUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -30,18 +27,22 @@ import java.util.stream.Collectors;
 @Service
 public class UserAuthServiceImpl implements UserAuthService {
 
-    @Autowired
+
     private UserRepository userRepository;
-    @Autowired
     private RoleRepository roleRepository;
-    @Autowired
     private PasswordEncoder encoder;
-
-    @Autowired
     private AuthenticationManager authenticationManager;
-
-    @Autowired
     private JwtUtils jwtUtils;
+
+    public UserAuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder,
+                               AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+        this.encoder = encoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtils = jwtUtils;
+
+    }
 
     @Override
     public JwtResponse login(String username, String password) {
