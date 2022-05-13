@@ -69,7 +69,7 @@ class AuthControllerTest {
 
     @Test
     void authenticateUser() throws Exception {
-        JwtResponse jwtResponse = new JwtResponse(TOKEN, 1L, USER_NAME, EMAIL, ROLES_RES);
+        JwtResponse jwtResponse = new JwtResponse(TOKEN, "",1L, USER_NAME, EMAIL, ROLES_RES);
 
         when(authService.login(anyString(), anyString())).thenReturn(jwtResponse);
 
@@ -102,4 +102,6 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", equalTo(SUCCESS_RESPONSE)));
     }
+
+
 }

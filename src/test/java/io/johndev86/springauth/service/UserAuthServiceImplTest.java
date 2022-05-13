@@ -83,7 +83,7 @@ class UserAuthServiceImplTest {
         JwtResponse jwtResponse = userAuthService.login(USER_NAME, PASSWORD);
 
         verify(authenticationManager, times(1)).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(jwtUtils, times(1)).generateJwtToken(any(Authentication.class));
+        verify(jwtUtils, times(1)).generateJwtToken(userDetails);
         assertEquals(TEST_TOKEN, jwtResponse.getToken());
         assertEquals(USER_NAME, jwtResponse.getUsername());
     }

@@ -1,6 +1,7 @@
 package io.johndev86.springauth.service;
 
 import io.johndev86.springauth.model.ERole;
+import io.johndev86.springauth.model.RefreshToken;
 import io.johndev86.springauth.model.Role;
 import io.johndev86.springauth.model.User;
 import io.johndev86.springauth.payload.JwtResponse;
@@ -27,21 +28,21 @@ import java.util.stream.Collectors;
 @Service
 public class UserAuthServiceImpl implements UserAuthService {
 
-
     private UserRepository userRepository;
     private RoleRepository roleRepository;
     private PasswordEncoder encoder;
     private AuthenticationManager authenticationManager;
     private JwtUtils jwtUtils;
+    private RefreshTokenService refreshTokenService;
 
     public UserAuthServiceImpl(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder encoder,
-                               AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+                               AuthenticationManager authenticationManager, JwtUtils jwtUtils, RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
-
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Override
@@ -49,9 +50,11 @@ public class UserAuthServiceImpl implements UserAuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl)authentication.getPrincipal();
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
+
+        String jwt = jwtUtils.generateJwtToken(userDetails);
 
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -59,6 +62,7 @@ public class UserAuthServiceImpl implements UserAuthService {
 
 
         return new JwtResponse(jwt,
+                refreshToken.getToken(),
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),

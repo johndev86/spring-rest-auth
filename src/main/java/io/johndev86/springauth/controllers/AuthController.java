@@ -1,9 +1,9 @@
 package io.johndev86.springauth.controllers;
 
-import io.johndev86.springauth.payload.JwtResponse;
-import io.johndev86.springauth.payload.LoginRequest;
-import io.johndev86.springauth.payload.MessageResponse;
-import io.johndev86.springauth.payload.SignupRequest;
+import io.johndev86.springauth.exception.TokenRefreshException;
+import io.johndev86.springauth.model.RefreshToken;
+import io.johndev86.springauth.payload.*;
+import io.johndev86.springauth.service.RefreshTokenService;
 import io.johndev86.springauth.service.UserAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +21,9 @@ public class AuthController {
     @Autowired
     private UserAuthService userAuthService;
 
+    @Autowired
+    private RefreshTokenService refreshTokenService;
+
     @PostMapping("/signin")
     public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(userAuthService.login(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -35,6 +38,11 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
         }
         return ResponseEntity.ok(messageResponse);
+    }
+
+    @PostMapping("/refreshtoken")
+    public ResponseEntity<TokenRefreshResponse> refreshToken(@Valid @RequestBody TokenRefreshRequest request) {
+        return ResponseEntity.ok(refreshTokenService.refreshToken(request.getRefreshToken()));
     }
 
 }
