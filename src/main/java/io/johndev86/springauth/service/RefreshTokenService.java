@@ -12,7 +12,7 @@ public interface RefreshTokenService {
 
     RefreshToken verifyExpiration(RefreshToken token);
 
-    TokenRefreshResponse refreshToken(String refreshToken);
+    TokenRefreshResponse refreshAccessToken(String refreshToken);
 
     int deleteByUserId(Long userId);
 }

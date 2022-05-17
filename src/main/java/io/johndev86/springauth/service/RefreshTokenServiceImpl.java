@@ -57,7 +57,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
-    public TokenRefreshResponse refreshToken(String refreshToken) {
+    public TokenRefreshResponse refreshAccessToken(String refreshToken) {
         return refreshTokenRepository.findByToken(refreshToken)
                 .map(this::verifyExpiration)
                 .map(RefreshToken::getUser)

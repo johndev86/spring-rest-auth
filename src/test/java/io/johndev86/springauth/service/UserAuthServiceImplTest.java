@@ -1,6 +1,7 @@
 package io.johndev86.springauth.service;
 
 import io.johndev86.springauth.model.ERole;
+import io.johndev86.springauth.model.RefreshToken;
 import io.johndev86.springauth.model.Role;
 import io.johndev86.springauth.model.User;
 import io.johndev86.springauth.payload.JwtResponse;
@@ -21,6 +22,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
@@ -45,9 +47,13 @@ class UserAuthServiceImplTest {
     private PasswordEncoder encoder;
 
     @Mock
+    private RefreshTokenService refreshTokenService;
+
+    @Mock
     private AuthenticationManager authenticationManager;
 
     private String TEST_TOKEN = "abcdef1234";
+    private String TEST_REFRESH_TOKEN = "refreshtoken";
     private String USER_NAME = "test";
     private String PASSWORD = "123";
     private String ENCODED_PASSWORD = "abc";
@@ -55,6 +61,8 @@ class UserAuthServiceImplTest {
     private Long TEST_ID = 1L;
 
     private String SUCCESS_RESPONSE = "User registered successfully!";
+
+    private Long refreshTokenDurationMs = 86400000L;
 
     @InjectMocks
     UserAuthServiceImpl userAuthService;
@@ -72,12 +80,16 @@ class UserAuthServiceImplTest {
 
         User user = new User(USER_NAME, EMAIL, PASSWORD);
         user.setRoles(roles);
+        user.setId(TEST_ID);
+
+        RefreshToken refreshToken = new RefreshToken(TEST_ID, user, TEST_REFRESH_TOKEN, Instant.now().plusMillis(refreshTokenDurationMs));
 
         UserDetailsImpl userDetails = UserDetailsImpl.build(user);
         Authentication authentication = mock(Authentication.class);
 
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(authenticationManager.authenticate(any())).thenReturn(authentication);
+        when(refreshTokenService.createRefreshToken(anyLong())).thenReturn(refreshToken);
         when(jwtUtils.generateJwtToken(any())).thenReturn(TEST_TOKEN);
 
         JwtResponse jwtResponse = userAuthService.login(USER_NAME, PASSWORD);
@@ -86,6 +98,7 @@ class UserAuthServiceImplTest {
         verify(jwtUtils, times(1)).generateJwtToken(userDetails);
         assertEquals(TEST_TOKEN, jwtResponse.getToken());
         assertEquals(USER_NAME, jwtResponse.getUsername());
+        assertEquals(TEST_REFRESH_TOKEN, jwtResponse.getRefreshToken());
     }
 
     @Test

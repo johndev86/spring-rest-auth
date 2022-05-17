@@ -40,9 +40,9 @@ public class AuthController {
         return ResponseEntity.ok(messageResponse);
     }
 
-    @PostMapping("/refreshtoken")
-    public ResponseEntity<TokenRefreshResponse> refreshToken(@Valid @RequestBody TokenRefreshRequest request) {
-        return ResponseEntity.ok(refreshTokenService.refreshToken(request.getRefreshToken()));
+    @PostMapping("/refreshaccesstoken")
+    public ResponseEntity<TokenRefreshResponse> refreshAccessToken(@Valid @RequestBody TokenRefreshRequest request) {
+        return ResponseEntity.ok(refreshTokenService.refreshAccessToken(request.getRefreshToken()));
     }
 
 }
